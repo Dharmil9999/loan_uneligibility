@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Loan Eligibility Checker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{font-family:Segoe UI, Roboto, Arial; background:#f7f9fc; margin:0; color:#222}
+    .wrap{max-width:900px; margin:32px auto; background:#fff; border:1px solid #e6e9ef; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.05)}
+    header{padding:20px 28px; border-bottom:1px solid #eef1f6}
+    h1{margin:0; font-size:22px}
+    form{padding:20px 28px; display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
+    label{font-size:13px; color:#444}
+    input, select{width:100%; padding:10px 12px; font-size:14px; border:1px solid #d9dfe8; border-radius:10px; background:#fff}
+    .row-2{grid-column: span 2}
+    .actions{padding:18px 28px; border-top:1px solid #eef1f6; display:flex; align-items:center; gap:12px}
+    .btn{background:#1976d2; color:#fff; padding:10px 16px; border-radius:10px; border:none; cursor:pointer; font-weight:600}
+    .btn:hover{background:#165fa8}
+    .card{margin:16px 28px 28px; padding:16px; border:1px solid #e8ecf4; border-radius:12px; background:#fbfdff}
+    .ok{color:#1b5e20; font-weight:700}
+    .bad{color:#b71c1c; font-weight:700}
+    .kv{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas; background:#f5f7fb; padding:8px 10px; border-radius:8px; border:1px solid #e6e9ef}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Loan Eligibility Checker</h1>
+      <div style="color:#556; font-size:13px;">Enter details below. Credit Score is 300–900. We convert it to Credit_History internally.</div>
+    </header>
+
+    <form method="POST" action="/predict_form">
+      <div>
+        <label>Gender</label>
+        <select name="Gender">
+          <option>Male</option>
+          <option>Female</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Married</label>
+        <select name="Married">
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Dependents</label>
+        <select name="Dependents">
+          <option>0</option><option>1</option><option>2</option><option>3+</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Education</label>
+        <select name="Education">
+          <option>Graduate</option>
+          <option>Not Graduate</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Employment Type</label>
+        <select name="Self_Employed">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Applicant Income (₹/month)</label>
+        <input type="number" name="ApplicantIncome" value="5000" required>
+      </div>
+
+      <div>
+        <label>Coapplicant Income (₹/month)</label>
+        <input type="number" name="CoapplicantIncome" value="0">
+      </div>
+
+      <div>
+        <label>Loan Amount (thousands)</label>
+        <input type="number" name="LoanAmount" value="150" required>
+      </div>
+
+      <div>
+        <label>Loan Term (months)</label>
+        <input type="number" name="Loan_Amount_Term" value="360" required>
+      </div>
+
+      <div>
+        <label>Property Area</label>
+        <select name="Property_Area">
+          <option>Urban</option>
+          <option>Semiurban</option>
+          <option>Rural</option>
+        </select>
+      </div>
+
+      <div class="row-2">
+        <label>Credit Score (300–900)</label>
+        <input type="number" name="credit_score" min="300" max="900" value="750" required>
+      </div>
+
+      <!-- Extra optional fields (ignored by model but useful in UI/report) -->
+      <div>
+        <label>Age</label>
+        <input type="number" name="age" value="30">
+      </div>
+      <div>
+        <label>Employment Length (years)</label>
+        <input type="number" name="job_years" value="3">
+      </div>
+      <div>
+        <label>Existing EMIs (₹/month)</label>
+        <input type="number" name="existing_emis" value="0">
+      </div>
+      <div>
+        <label>Monthly Expenses (₹/month)</label>
+        <input type="number" name="monthly_expenses" value="0">
+      </div>
+      <div>
+        <label>Savings (₹)</label>
+        <input type="number" name="savings_balance" value="0">
+      </div>
+
+      <div class="actions">
+        <button class="btn" type="submit">Check Eligibility</button>
+        <div style="font-size:13px;color:#667">Or send JSON to <code class="kv">POST /predict</code></div>
+      </div>
+    </form>
+
+    {% if result %}
+    <div class="card">
+      <div>Result:
+        {% if result == "Eligible" %}
+          <span class="ok">{{ result }}</span>
+        {% else %}
+          <span class="bad">{{ result }}</span>
+        {% endif %}
+      </div>
+      <div>Confidence: <b>{{ confidence }}</b></div>
+      <div style="margin-top:8px; font-size:13px; color:#455">Used features:</div>
+      <pre class="kv">{{ used }}</pre>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="card">
+      <div class="bad">Error: {{ error }}</div>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>
